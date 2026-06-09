@@ -1,1 +1,5 @@
-clanker-control
+# build output
+/clanker-control
+/clanker-control-*
+*.exe
+/dist/

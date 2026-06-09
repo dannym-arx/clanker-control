@@ -49,16 +49,39 @@ No data ever leaves the machine, it only reads local process and session state.
 | active   | OpenCode session updated in the last minute      |
 | idle     | no recent activity                               |
 
-## Requirements
+## Platforms
 
-- [Odin](https://odin-lang.org) (tested on `dev-2026-05`)
-- Linux (uses `/proc` for cwd resolution and `ioctl` for terminal size)
-- `ps` and `sqlite3` on `PATH`
+| OS      | Status       | Notes                                                    |
+| ------- | ------------ | -------------------------------------------------------- |
+| Linux   | full         | cwd via `/proc/<pid>/cwd`                                |
+| macOS   | full         | cwd via `lsof`                                           |
+| Windows | experimental | UI renders, but process/cwd discovery isn't wired up yet |
+
+Runtime deps: `ps` and `sqlite3` on `PATH` (Unix).
+
+## Install
+
+Grab a prebuilt binary from the [Releases](../../releases) page
+(`linux-x86_64`, `macos-arm64`, `windows-x86_64.exe`) — these are built and
+published automatically by the GitHub Actions workflow on every push.
 
 ## Build & run
+
+Needs [Odin](https://odin-lang.org) (tested on `dev-2026-05`).
 
 ```sh
 ./build.sh             # produces ./clanker-control
 ./clanker-control      # live dashboard, refreshes every 500ms
 ./clanker-control once # render a single frame and exit (good for piping)
+```
+
+## Layout
+
+```
+main.odin              portable core: discovery, parsing, sorting, rendering
+platform_posix.odin    Unix terminal/input/signals + `ps` listing (linux+darwin)
+platform_linux.odin    cwd resolution via /proc
+platform_darwin.odin   cwd resolution via lsof
+platform_windows.odin  Windows stubs (ANSI console, no discovery yet)
+.github/workflows/     CI: build + release for all three platforms
 ```
